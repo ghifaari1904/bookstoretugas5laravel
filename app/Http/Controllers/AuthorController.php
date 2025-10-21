@@ -2,34 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Author;
 
 class AuthorController extends Controller
 {
+    // READ ALL
     public function index()
     {
-        $authors = Author::with('books')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $authors
-        ], 200);
+        $authors = Author::all();
+        return response()->json($authors);
     }
 
-    public function show($id)
+    // CREATE
+    public function store(Request $request)
     {
-        $author = Author::with('books')->find($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:authors,email'
+        ]);
 
-        if (! $author) {
-            return response()->json([
-                'status' => 'error',
-                'message' => "Author with id {$id} not found"
-            ], 404);
-        }
+        $author = Author::create([
+            'name' => $request->name,
+            'email' => $request->email
+        ]);
 
         return response()->json([
-            'status' => 'success',
+            'message' => 'Author created successfully',
             'data' => $author
-        ], 200);
+        ], 201);
     }
 }
